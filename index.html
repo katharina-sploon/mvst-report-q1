@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MVST — LinkedIn Performance Report Q1 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --black: #080808;
+    --black-2: #111111;
+    --black-3: #1a1a1a;
+    --gray-light: #2a2a2a;
+    --neon: #00FF44;
+    --neon-fade: rgba(0,255,68,0.07);
+    --white: #ffffff;
+    --gray: #555555;
+    --muted: #aaaaaa;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Space Grotesk', sans-serif; background: var(--black); color: var(--white); font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased; }
+  .page { max-width: 880px; margin: 0 auto; padding: 3rem 2rem 6rem; }
+
+  .header { margin-bottom: 3.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--gray-light); }
+  .header-eyebrow { font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--neon); margin-bottom: 1rem; }
+  .header-title { font-size: 36px; font-weight: 300; color: var(--white); line-height: 1.15; margin-bottom: 0.5rem; }
+  .header-title span { font-weight: 600; color: var(--neon); }
+  .header-meta { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--gray); letter-spacing: 0.04em; }
+
+  .section { margin-bottom: 3rem; }
+  .section-label { font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--neon); margin-bottom: 1rem; }
+  hr.divider { border: none; border-top: 1px solid var(--gray-light); margin: 2.5rem 0; }
+
+  .metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 2rem; }
+  .metric-card { background: var(--black-3); border-radius: 8px; padding: 1.1rem 1.2rem; border: 1px solid var(--gray-light); position: relative; overflow: hidden; }
+  .metric-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--neon); }
+  .m-label { font-size: 11px; color: var(--gray); margin-bottom: 6px; }
+  .m-val { font-family: 'Space Mono', monospace; font-size: 26px; font-weight: 700; color: var(--neon); line-height: 1; }
+  .m-sub { font-size: 11px; color: var(--gray); margin-top: 5px; }
+
+  .chart-legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: var(--gray); margin-bottom: 10px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; vertical-align: middle; margin-right: 4px; }
+  .chart-container { position: relative; width: 100%; height: 230px; background: var(--black-2); border-radius: 8px; border: 1px solid var(--gray-light); padding: 1rem; }
+  .chart-note { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--gray); margin-top: 8px; line-height: 1.55; }
+
+  .expl-box { background: var(--black-3); border-radius: 10px; padding: 1.5rem; margin-bottom: 1rem; border: 1px solid var(--gray-light); border-left: 3px solid var(--neon); }
+  .expl-title { font-size: 16px; font-weight: 600; margin-bottom: 0.75rem; color: var(--white); }
+  .expl-body { font-size: 14px; color: var(--muted); line-height: 1.8; }
+  .expl-body strong { color: var(--neon); font-weight: 500; }
+
+  .comp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.25rem; }
+  .comp-card { background: var(--black-3); border-radius: 8px; padding: 1rem; border: 1px solid var(--gray-light); }
+  .comp-card.mvst { background: var(--black-2); border: 1px solid var(--neon); box-shadow: 0 0 24px rgba(0,255,68,0.07); }
+  .comp-name { font-size: 14px; font-weight: 600; color: var(--white); margin-bottom: 10px; }
+  .comp-badge { display: inline-block; font-family: 'Space Mono', monospace; font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 3px; background: var(--neon); color: var(--black); letter-spacing: 0.06em; margin-bottom: 8px; }
+  .comp-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--gray); padding: 4px 0; border-bottom: 1px solid var(--gray-light); }
+  .comp-row:last-child { border-bottom: none; }
+  .comp-val { font-weight: 600; color: var(--white); }
+  .comp-val.win { color: var(--neon); }
+
+  .two-col { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 1.5rem; }
+  .insight-card { background: var(--black-3); border-radius: 8px; padding: 1rem 1.1rem; border: 1px solid var(--gray-light); }
+  .i-label { font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700; color: var(--neon); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .i-text { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  .rec-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .rec-card { background: var(--black-3); border-radius: 8px; padding: 1.2rem; border: 1px solid var(--gray-light); }
+  .rec-num { font-family: 'Space Mono', monospace; font-size: 28px; font-weight: 700; color: var(--neon); margin-bottom: 8px; }
+  .rec-title { font-size: 14px; font-weight: 600; color: var(--white); margin-bottom: 6px; }
+  .rec-body { font-size: 12px; color: var(--gray); line-height: 1.6; }
+
+  @media (max-width: 640px) {
+    .metric-grid { grid-template-columns: repeat(2, 1fr); }
+    .comp-grid { grid-template-columns: repeat(2, 1fr); }
+    .two-col { grid-template-columns: 1fr; }
+    .rec-grid { grid-template-columns: 1fr; }
+    .header-title { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <p class="header-eyebrow">// Social media report — April 2026</p>
+    <h1 class="header-title">MVST — <span>LinkedIn Performance</span></h1>
+    <p class="header-meta">H2 2025 + Q1 2026 &nbsp;·&nbsp; All data sourced directly from LinkedIn</p>
+  </div>
+
+  <!-- Q1 overview -->
+  <div class="section">
+    <p class="section-label">// Q1 2026 at a glance</p>
+    <div class="metric-grid">
+      <div class="metric-card"><p class="m-label">Impressions</p><p class="m-val">42,478</p><p class="m-sub">35 posts published</p></div>
+      <div class="metric-card"><p class="m-label">Reactions</p><p class="m-val">606</p><p class="m-sub">17.3 per post avg</p></div>
+      <div class="metric-card"><p class="m-label">Comments</p><p class="m-val">40</p><p class="m-sub">Upward trend all quarter</p></div>
+      <div class="metric-card"><p class="m-label">New followers</p><p class="m-val">249</p><p class="m-sub">Total page: 5,681</p></div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Engagement rate -->
+  <div class="section">
+    <p class="section-label">// Engagement rate — Jun 2025 to Mar 2026</p>
+    <div class="chart-legend"><span><span class="legend-dot" style="background:#00FF44;"></span>Engagement rate (LinkedIn native %)</span></div>
+    <div class="chart-container" style="margin-bottom:8px;"><canvas id="engChart" role="img" aria-label="Monthly engagement rate June 2025 to March 2026"></canvas></div>
+    <p class="chart-note">* Dec actual: 45.8 — spike driven by offsite recap posts with the whole team tagged. Not a typical content month. Capped at 30 for scale.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Follower growth -->
+  <div class="section">
+    <p class="section-label">// New followers per month — Nov 2025 to Mar 2026</p>
+    <div class="chart-legend"><span><span class="legend-dot" style="background:#00FF44;"></span>New followers</span></div>
+    <div class="chart-container" style="margin-bottom:8px;"><canvas id="follChart" role="img" aria-label="Monthly new followers November 2025 to March 2026"></canvas></div>
+    <p class="chart-note">December drop reflects a quieter organic month — team-tagged posts drove reach but not necessarily new page follows. Growth stabilised and held steady through Q1.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Follower Demographics -->
+  <div class="section">
+    <p class="section-label">// Q1 2026 — follower demographics</p>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem;">
+
+      <!-- Job Function -->
+      <div style="background:var(--black-3);border:1px solid var(--gray-light);border-radius:8px;padding:1.1rem 1.2rem;">
+        <p style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--neon);margin-bottom:1rem;">Job Function</p>
+        <div style="display:flex;flex-direction:column;gap:7px;">
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px;"><span>Engineering</span><span style="color:var(--white);font-weight:600;">27.3%</span></div><div style="background:var(--gray-light);border-radius:3px;height:5px;"><div style="background:var(--neon);height:5px;border-radius:3px;width:27.3%;"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px;"><span>Arts &amp; Design</span><span style="color:var(--white);font-weight:600;">13.1%</span></div><div style="background:var(--gray-light);border-radius:3px;height:5px;"><div style="background:var(--neon);height:5px;border-radius:3px;width:13.1%;opacity:.8"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px;"><span>Business Dev.</span><span style="color:var(--white);font-weight:600;">6.5%</span></div><div style="background:var(--gray-light);border-radius:3px;height:5px;"><div style="background:var(--neon);height:5px;border-radius:3px;width:6.5%;opacity:.7"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px;"><span>IT</span><span style="color:var(--white);font-weight:600;">6.1%</span></div><div style="background:var(--gray-light);border-radius:3px;height:5px;"><div style="background:var(--neon);height:5px;border-radius:3px;width:6.1%;opacity:.7"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px;"><span>Product Management</span><span style="color:var(--white);font-weight:600;">3.9%</span></div><div style="background:var(--gray-light);border-radius:3px;height:5px;"><div style="background:var(--neon);height:5px;border-radius:3px;width:3.9%;opacity:.6"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px;"><span>Marketing</span><span style="color:var(--white);font-weight:600;">3.5%</span></div><div style="background:var(--gray-light);border-radius:3px;height:5px;"><div style="background:var(--neon);height:5px;border-radius:3px;width:3.5%;opacity:.6"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px;"><span>Operations</span><span style="color:var(--white);font-weight:600;">3.0%</span></div><div style="background:var(--gray-light);border-radius:3px;height:5px;"><div style="background:var(--neon);height:5px;border-radius:3px;width:3.0%;opacity:.6"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px;"><span>Others (unclassified)</span><span style="color:var(--white);font-weight:600;">36.6%</span></div><div style="background:var(--gray-light);border-radius:3px;height:5px;"><div style="background:#FFD700;height:5px;border-radius:3px;width:36.6%;"></div></div></div>
+        </div>
+      </div>
+
+      <!-- Industry -->
+      <div style="background:var(--black-3);border:1px solid var(--gray-light);border-radius:8px;padding:1.1rem 1.2rem;">
+        <p style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--neon);margin-bottom:1rem;">Industry</p>
+        <div style="display:flex;flex-direction:column;gap:7px;">
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px;"><span>Software Development</span><span style="color:var(--white);font-weight:600;">17.8%</span></div><div style="background:var(--gray-light);border-radius:3px;height:5px;"><div style="background:var(--neon);height:5px;border-radius:3px;width:17.8%;"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px;"><span>IT Services &amp; Consulting</span><span style="color:var(--white);font-weight:600;">15.2%</span></div><div style="background:var(--gray-light);border-radius:3px;height:5px;"><div style="background:var(--neon);height:5px;border-radius:3px;width:15.2%;opacity:.85"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px;"><span>Tech, Info &amp; Internet</span><span style="color:var(--white);font-weight:600;">6.1%</span></div><div style="background:var(--gray-light);border-radius:3px;height:5px;"><div style="background:var(--neon);height:5px;border-radius:3px;width:6.1%;opacity:.7"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px;"><span>Design Services</span><span style="color:var(--white);font-weight:600;">3.6%</span></div><div style="background:var(--gray-light);border-radius:3px;height:5px;"><div style="background:var(--neon);height:5px;border-radius:3px;width:3.6%;opacity:.6"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px;"><span>Business Consulting</span><span style="color:var(--white);font-weight:600;">3.3%</span></div><div style="background:var(--gray-light);border-radius:3px;height:5px;"><div style="background:var(--neon);height:5px;border-radius:3px;width:3.3%;opacity:.6"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px;"><span>Advertising Services</span><span style="color:var(--white);font-weight:600;">2.8%</span></div><div style="background:var(--gray-light);border-radius:3px;height:5px;"><div style="background:var(--neon);height:5px;border-radius:3px;width:2.8%;opacity:.55"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px;"><span>Financial Services</span><span style="color:var(--white);font-weight:600;">2.3%</span></div><div style="background:var(--gray-light);border-radius:3px;height:5px;"><div style="background:var(--neon);height:5px;border-radius:3px;width:2.3%;opacity:.5"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px;"><span>Higher Education</span><span style="color:var(--white);font-weight:600;">2.1%</span></div><div style="background:var(--gray-light);border-radius:3px;height:5px;"><div style="background:var(--neon);height:5px;border-radius:3px;width:2.1%;opacity:.5"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px;"><span>IT Custom Software Dev.</span><span style="color:var(--white);font-weight:600;">1.6%</span></div><div style="background:var(--gray-light);border-radius:3px;height:5px;"><div style="background:var(--neon);height:5px;border-radius:3px;width:1.6%;opacity:.45"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px;"><span>Staffing &amp; Recruiting</span><span style="color:var(--white);font-weight:600;">1.2%</span></div><div style="background:var(--gray-light);border-radius:3px;height:5px;"><div style="background:var(--neon);height:5px;border-radius:3px;width:1.2%;opacity:.4"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px;"><span>Motor Vehicle Mfg.</span><span style="color:var(--white);font-weight:600;">&lt;1%</span></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px;"><span>Banking</span><span style="color:var(--white);font-weight:600;">&lt;1%</span></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px;"><span>Retail</span><span style="color:var(--white);font-weight:600;">&lt;1%</span></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px;"><span>Hospitals &amp; Health Care</span><span style="color:var(--white);font-weight:600;">&lt;1%</span></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px;"><span>Travel Arrangements</span><span style="color:var(--white);font-weight:600;">&lt;1%</span></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px;"><span>Others (unclassified)</span><span style="color:var(--white);font-weight:600;">39.5%</span></div><div style="background:var(--gray-light);border-radius:3px;height:5px;"><div style="background:#FFD700;height:5px;border-radius:3px;width:39.5%;"></div></div></div>
+        </div>
+      </div>
+
+      <!-- Seniority -->
+      <div style="background:var(--black-3);border:1px solid var(--gray-light);border-radius:8px;padding:1.1rem 1.2rem;">
+        <p style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--neon);margin-bottom:1rem;">Seniority</p>
+        <div style="display:flex;flex-direction:column;gap:7px;">
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px;"><span>Entry</span><span style="color:var(--white);font-weight:600;">40.8%</span></div><div style="background:var(--gray-light);border-radius:3px;height:5px;"><div style="background:var(--neon);height:5px;border-radius:3px;width:40.8%;opacity:.6"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px;"><span>Senior</span><span style="color:var(--white);font-weight:600;">25.6%</span></div><div style="background:var(--gray-light);border-radius:3px;height:5px;"><div style="background:var(--neon);height:5px;border-radius:3px;width:25.6%;"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px;"><span>Director</span><span style="color:var(--white);font-weight:600;">4.0%</span></div><div style="background:var(--gray-light);border-radius:3px;height:5px;"><div style="background:var(--neon);height:5px;border-radius:3px;width:4.0%;opacity:.7"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px;"><span>Owner</span><span style="color:var(--white);font-weight:600;">2.8%</span></div><div style="background:var(--gray-light);border-radius:3px;height:5px;"><div style="background:var(--neon);height:5px;border-radius:3px;width:2.8%;opacity:.65"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px;"><span>Manager</span><span style="color:var(--white);font-weight:600;">2.5%</span></div><div style="background:var(--gray-light);border-radius:3px;height:5px;"><div style="background:var(--neon);height:5px;border-radius:3px;width:2.5%;opacity:.6"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px;"><span>VP</span><span style="color:var(--white);font-weight:600;">1.2%</span></div><div style="background:var(--gray-light);border-radius:3px;height:5px;"><div style="background:var(--neon);height:5px;border-radius:3px;width:1.2%;opacity:.55"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px;"><span>Partner</span><span style="color:var(--white);font-weight:600;">&lt;1%</span></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px;"><span>Others (unclassified)</span><span style="color:var(--white);font-weight:600;">22.3%</span></div><div style="background:var(--gray-light);border-radius:3px;height:5px;"><div style="background:#FFD700;height:5px;border-radius:3px;width:22.3%;"></div></div></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Q2 Strategy callout -->
+    <div class="expl-box">
+      <p class="expl-title">Q2 goal — shift the audience mix</p>
+      <p class="expl-body">The current follower base skews heavily toward <strong>Entry-level profiles (40.8%)</strong>, with Senior, Director, Owner, VP, and Partner collectively accounting for roughly 34%. The goal for Q2 is to actively shift this distribution toward more senior, decision-making profiles.<br><br>
+      On the industry side, the audience is concentrated in Software Development and IT services. Q2 content should deliberately expand into <strong>Manufacturing, Healthcare, Banking, Financial Services</strong>, and adjacent verticals — industries that are underrepresented today but represent real client potential for MVST.<br><br>
+      This means producing content that speaks to business problems, not just craft. Topics relevant to CTOs, Heads of Product, and Operations leaders in these industries — such as digital transformation, embedded product teams, and build-vs-buy decisions — will attract the right profile types and help rebalance the audience over time.<br><br>
+      <strong>A note on unclassified followers:</strong> A significant portion of followers fall into the "Others (unclassified)" category across all three dimensions — <strong>36.6%</strong> for job function, <strong>39.5%</strong> for industry, and <strong>22.3%</strong> for seniority. This is common on LinkedIn: many users have not filled in a standardised job function, listed a recognised industry, or set a seniority level on their profile. These followers are real people engaging with the page — LinkedIn simply cannot assign them to a defined category.</p>
+    </div>
+
+  </div>
+
+  <hr class="divider">
+
+  <!-- Comments -->
+  <div class="section">
+    <p class="section-label">// Comments per month — Nov 2025 to Mar 2026</p>
+    <div class="chart-legend"><span><span class="legend-dot" style="background:#00FF44;"></span>Comments</span></div>
+    <div class="chart-container" style="margin-bottom:8px;"><canvas id="commChart" role="img" aria-label="Monthly comments November 2025 to March 2026"></canvas></div>
+    <p class="chart-note">Consistent upward trend — content is increasingly sparking real conversation.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Impressions -->
+  <div class="section">
+    <p class="section-label">// Monthly impressions — Nov 2025 to Mar 2026</p>
+    <div class="chart-legend">
+      <span><span class="legend-dot" style="background:#00FF44;"></span>Impressions</span>
+      <span><span class="legend-dot" style="background:#444; border-radius:50%;"></span>Posts published</span>
+    </div>
+    <div class="chart-container" style="margin-bottom:8px;"><canvas id="impChart" role="img" aria-label="Monthly impressions and post count November 2025 to March 2026"></canvas></div>
+    <p class="chart-note">Impressions remain consistent regardless of post count — volume alone does not drive reach.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Q&A -->
+  <div class="section">
+    <p class="section-label">// Answering your questions</p>
+    <div class="expl-box" style="margin-bottom:1rem;">
+      <p class="expl-title">Why do impressions go down while engagement rate goes up?</p>
+      <p class="expl-body">These two metrics measure completely different things — and it is perfectly normal, even healthy, for them to move in opposite directions.<br><br><strong>Impressions</strong> reflect how many times content was displayed on screen. They are largely driven by posting volume and LinkedIn's distribution algorithm. When fewer posts go out, impressions naturally decrease — there is simply less content being seen.<br><br><strong>Engagement rate</strong>, as calculated by LinkedIn, measures the quality of interaction relative to impressions. It counts reactions, comments, clicks, shares, and follows — then divides by total impressions. When fewer posts go out but the content that does go out performs well, that rate goes up — because the audience that sees it responds more actively.<br><br>In short: <strong>fewer but stronger posts can lower impressions and raise engagement rate at the same time.</strong> This is not a contradiction — it is a sign that content quality is improving.</p>
+    </div>
+    <div class="expl-box">
+      <p class="expl-title">A note on LinkedIn's engagement rate vs the standard marketing formula</p>
+      <p class="expl-body">LinkedIn calculates engagement rate differently from the traditional marketing formula. The standard approach divides total interactions by total followers — which typically produces rates between 1% and 5% for B2B company pages.<br><br>LinkedIn's native rate divides all interactions (including clicks and profile visits) by <strong>impressions</strong>, not followers. This produces a higher number and is not directly comparable to benchmarks from external tools. The figures in this report are LinkedIn's own numbers, taken directly from the platform, and should be interpreted within that context.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Competitors -->
+  <div class="section">
+    <p class="section-label">// Competitor comparison — Q1 2026</p>
+    <div class="comp-grid">
+      <div class="comp-card mvst">
+        <span class="comp-badge">MVST</span>
+        <p class="comp-name">MVST</p>
+        <div class="comp-row"><span>Total followers</span><span class="comp-val win">5,681</span></div>
+        <div class="comp-row"><span>Posts</span><span class="comp-val">35</span></div>
+        <div class="comp-row"><span>Reactions</span><span class="comp-val win">606</span></div>
+        <div class="comp-row"><span>Comments</span><span class="comp-val win">40</span></div>
+        <div class="comp-row"><span>New followers</span><span class="comp-val win">249</span></div>
+      </div>
+      <div class="comp-card">
+        <p class="comp-name">COBE</p>
+        <div class="comp-row"><span>Total followers</span><span class="comp-val">4,711</span></div>
+        <div class="comp-row"><span>Posts</span><span class="comp-val">35</span></div>
+        <div class="comp-row"><span>Reactions</span><span class="comp-val">326</span></div>
+        <div class="comp-row"><span>Comments</span><span class="comp-val">8</span></div>
+        <div class="comp-row"><span>New followers</span><span class="comp-val">139</span></div>
+      </div>
+      <div class="comp-card">
+        <p class="comp-name">DieProduktMacher</p>
+        <div class="comp-row"><span>Total followers</span><span class="comp-val">3,462</span></div>
+        <div class="comp-row"><span>Posts</span><span class="comp-val">12</span></div>
+        <div class="comp-row"><span>Reactions</span><span class="comp-val">136</span></div>
+        <div class="comp-row"><span>Comments</span><span class="comp-val">15</span></div>
+        <div class="comp-row"><span>New followers</span><span class="comp-val">171</span></div>
+      </div>
+    </div>
+
+
+    <div class="two-col" style="margin-top:1.25rem;">
+      <div class="insight-card">
+        <p class="i-label">MVST vs COBE — bigger audience, far better output</p>
+        <p class="i-text">MVST has 970 more followers than COBE and at the same posting volume produced 86% more reactions, 5x more comments, and gained 79% more new followers in Q1. A clear lead on both size and performance.</p>
+      </div>
+      <div class="insight-card">
+        <p class="i-label">DieProduktMacher — smaller audience, weaker results</p>
+        <p class="i-text">With 3,462 followers and only 12 posts, DieProduktMacher is behind MVST on every metric — audience size, content output, reactions, and comments. Not a competitive threat at current trajectory.</p>
+      </div>
+      <div class="insight-card">
+        <p class="i-label">Comments — MVST leads the conversation</p>
+        <p class="i-text">MVST generated 40 comments in Q1 compared to 8 for COBE at the same posting volume and 15 for DieProduktMacher with fewer posts. A strong indicator of content relevance and genuine community interest.</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Recommendations -->
+  <div class="section">
+    <p class="section-label">// Measurable goals for Q2 2026</p>
+    <div class="rec-grid">
+      <div class="rec-card">
+        <p class="rec-num">20+</p>
+        <p class="rec-title">Reactions per post</p>
+        <p class="rec-body">Q1 average was 17.3 reactions per post. A target of 20 is a natural next step — track this monthly as a content quality indicator.</p>
+      </div>
+      <div class="rec-card">
+        <p class="rec-num">1.5+</p>
+        <p class="rec-title">Comments per post</p>
+        <p class="rec-body">Q1 averaged 1.14 comments per post (40 comments across 35 posts). A target of 1.5 is an ambitious but realistic next step — question-led posts and opinion pieces help push this further.</p>
+      </div>
+      <div class="rec-card">
+        <p class="rec-num">300+</p>
+        <p class="rec-title">New followers per quarter</p>
+        <p class="rec-body">Q1 delivered 249 organic followers. A Q2 target of 300 tracks steady growth momentum without requiring a spike in post volume.</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- LinkedIn Invite Strategy -->
+  <div class="section">
+    <p class="section-label">// LinkedIn invite strategy — Q2 2026</p>
+    <div class="expl-box" style="margin-bottom:1rem;">
+      <p class="expl-title">100 targeted page follow invites per month — via Niklas &amp; Philipp</p>
+      <p class="expl-body">LinkedIn allows each personal profile to send up to <strong>50 page follow invites per month</strong>. With both Niklas and Philipp's profiles active, MVST has a combined budget of <strong>100 invites per month</strong> — a direct and controllable lever for follower growth that most companies underuse.<br><br>
+      Rather than sending invites broadly, the most effective approach is to <strong>focus each month on one specific industry or seniority level</strong> — aligned with the content theme that month. This creates a compounding effect: the people invited are more likely to follow because the content they land on is directly relevant to them, and it gradually shifts the audience demographics toward the profiles MVST wants to reach.<br><br>
+      <strong>Example monthly focus:</strong> If April's content covers digital transformation in manufacturing, invites that month go specifically to Operations, Engineering, and IT profiles in the Motor Vehicle and Industrial sectors. In May, if content shifts to healthcare innovation, invites target Healthcare and MedTech profiles. Over a full quarter, this approach can add <strong>200–300 highly targeted followers</strong> while simultaneously improving the industry and seniority distribution of the page audience.</p>
+    </div>
+
+    <div class="two-col">
+      <div class="insight-card">
+        <p class="i-label">Industry focus — one per month</p>
+        <p class="i-text">Align invites with the content calendar. Each month, pick one underrepresented industry — Manufacturing, Healthcare, Banking, Financial Services — and have Niklas and Philipp send all 50 invites each to relevant profiles in that sector. Track which industries convert best.</p>
+      </div>
+      <div class="insight-card">
+        <p class="i-label">Seniority targeting</p>
+        <p class="i-text">Current followers skew heavily Entry-level (40.8%). Use invite months to deliberately target Senior, Director, and Owner profiles. Search by job title and seniority filter on LinkedIn before sending — quality of invite targets matters more than speed.</p>
+      </div>
+      <div class="insight-card">
+        <p class="i-label">Measure conversion rate</p>
+        <p class="i-text">Track how many of the 100 monthly invites convert to actual follows. LinkedIn shows pending and accepted invites — a conversion rate above 30% is strong. Low conversion on a specific industry segment is a signal to adjust either the targeting or the content that month.</p>
+      </div>
+      <div class="insight-card">
+        <p class="i-label">Coordinate with content</p>
+        <p class="i-text">Invites work best when the page is actively posting content relevant to the invited audience. Send invites in the same week a relevant post goes live — the invited profile lands on the page and immediately sees content that speaks to them, making a follow far more likely.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- INSTAGRAM SECTION -->
+  <!-- ============================================================ -->
+
+  <div style="margin-top:5rem;padding-top:3.5rem;border-top:2px solid #E1306C;">
+    <div class="header" style="border-bottom-color:#2a2a2a;margin-bottom:3rem;">
+      <p class="header-eyebrow" style="color:#E1306C;">// Social media report — April 2026</p>
+      <h1 class="header-title">MVST — <span style="color:#E1306C;">Instagram Performance</span></h1>
+      <p class="header-meta">Q1 2026 &nbsp;·&nbsp; Dec 2025 – Mar 2026 &nbsp;·&nbsp; All data sourced directly from Instagram Insights</p>
+    </div>
+  </div>
+
+  <!-- IG KPI overview -->
+  <div class="section">
+    <p class="section-label" style="color:#E1306C;">// Q1 2026 at a glance</p>
+    <div class="metric-grid">
+      <div class="metric-card" style="border-top-color:#E1306C;">
+        <p class="m-label">Avg. Followers</p>
+        <p class="m-val" style="color:#E1306C;">1,827</p>
+        <p class="m-sub">Stable across Dec–Mar</p>
+      </div>
+      <div class="metric-card" style="border-top-color:#E1306C;">
+        <p class="m-label">Total Impressions</p>
+        <p class="m-val" style="color:#E1306C;">21,025</p>
+        <p class="m-sub">Jan–Mar 2026</p>
+      </div>
+      <div class="metric-card" style="border-top-color:#E1306C;">
+        <p class="m-label">Avg. ERR</p>
+        <p class="m-val" style="color:#E1306C;">16.3%</p>
+        <p class="m-sub">Engagement Rate by Reach</p>
+      </div>
+      <div class="metric-card" style="border-top-color:#E1306C;">
+        <p class="m-label">Total Interactions</p>
+        <p class="m-val" style="color:#E1306C;">856</p>
+        <p class="m-sub">Dec 25 – Mar 26</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- IG Follower development -->
+  <div class="section">
+    <p class="section-label" style="color:#E1306C;">// Follower development — Dec 2025 to Mar 2026</p>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1rem;">
+      <div class="metric-card" style="border-top-color:#E1306C;"><p class="m-label">Dec 2025</p><p class="m-val" style="color:#E1306C;font-size:22px;">1,825</p></div>
+      <div class="metric-card" style="border-top-color:#E1306C;"><p class="m-label">Jan 2026</p><p class="m-val" style="color:#E1306C;font-size:22px;">1,831</p></div>
+      <div class="metric-card" style="border-top-color:#E1306C;"><p class="m-label">Feb 2026</p><p class="m-val" style="color:#E1306C;font-size:22px;">1,825</p></div>
+      <div class="metric-card" style="border-top-color:#E1306C;"><p class="m-label">Mar 2026</p><p class="m-val" style="color:#E1306C;font-size:22px;">1,827</p></div>
+    </div>
+    <p class="chart-note">Follower count is essentially flat across the quarter — minimal churn and minimal growth. The audience is stable but not expanding. This is the primary growth lever to address in Q2.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- IG Competitor comparison -->
+  <div class="section">
+    <p class="section-label" style="color:#E1306C;">// Competitor comparison — Instagram Q1 2026</p>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:1.25rem;">
+
+      <div class="comp-card mvst" style="border-color:#E1306C;box-shadow:0 0 24px rgba(225,48,108,0.07);">
+        <span class="comp-badge" style="background:#E1306C;">MVST</span>
+        <p class="comp-name">MVST <span style="font-size:11px;color:var(--gray);font-weight:400;">@mvstdotco</span></p>
+        <div class="comp-row"><span>Followers</span><span class="comp-val win" style="color:#E1306C;">1,827</span></div>
+        <div class="comp-row"><span>Avg. ERF</span><span class="comp-val win" style="color:#E1306C;">11.7%</span></div>
+        <div class="comp-row"><span>Content focus</span><span class="comp-val">Team &amp; product</span></div>
+        <div class="comp-row"><span>Activity</span><span class="comp-val">Active</span></div>
+      </div>
+
+      <div class="comp-card">
+        <p class="comp-name">COBE <span style="font-size:11px;color:var(--gray);font-weight:400;">@cobeisfresh</span></p>
+        <div class="comp-row"><span>Followers</span><span class="comp-val">1,401</span></div>
+        <div class="comp-row"><span>Engagement</span><span class="comp-val">Similar to MVST</span></div>
+        <div class="comp-row"><span>Content focus</span><span class="comp-val">Employer branding</span></div>
+        <div class="comp-row"><span>Activity</span><span class="comp-val">Active, less frequent</span></div>
+      </div>
+
+      <div class="comp-card">
+        <p class="comp-name">Futurice <span style="font-size:11px;color:var(--gray);font-weight:400;">@futurice</span></p>
+        <div class="comp-row"><span>Followers</span><span class="comp-val">5,491</span></div>
+        <div class="comp-row"><span>Posts</span><span class="comp-val">1,075</span></div>
+        <div class="comp-row"><span>Content focus</span><span class="comp-val">Team &amp; culture</span></div>
+        <div class="comp-row"><span>Activity</span><span class="comp-val">Low frequency, good ERF</span></div>
+      </div>
+
+      <div class="comp-card">
+        <p class="comp-name">DieProduktMacher <span style="font-size:11px;color:var(--gray);font-weight:400;">@dieproduktmacher</span></p>
+        <div class="comp-row"><span>Followers</span><span class="comp-val">590</span></div>
+        <div class="comp-row"><span>Engagement</span><span class="comp-val">—</span></div>
+        <div class="comp-row"><span>Content focus</span><span class="comp-val">—</span></div>
+        <div class="comp-row"><span>Activity</span><span class="comp-val">Inactive since 2025</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- IG Engagement Rates side by side -->
+  <div class="two-col">
+    <div class="section" style="margin-bottom:0;">
+      <p class="section-label" style="color:#E1306C;">// Engagement Rate by Reach (ERR)</p>
+      <div class="chart-legend"><span><span class="legend-dot" style="background:#E1306C;"></span>Interactions ÷ Accounts Reached × 100</span></div>
+      <div class="chart-container" style="margin-bottom:8px;"><canvas id="igErrChart"></canvas></div>
+      <p class="chart-note">Feb had the highest ERR at 20.6% — smaller reached audience relative to interactions. Q1 avg: <strong style="color:#E1306C;">16.3%</strong></p>
+    </div>
+    <div class="section" style="margin-bottom:0;">
+      <p class="section-label" style="color:#E1306C;">// Engagement Rate by Followers (ERF)</p>
+      <div class="chart-legend"><span><span class="legend-dot" style="background:#c0392b;"></span>Interactions ÷ Followers × 100</span></div>
+      <div class="chart-container" style="margin-bottom:8px;"><canvas id="igErfChart"></canvas></div>
+      <p class="chart-note">Classic benchmark formula. Feb dipped to 8.7% as interactions fell while follower count stayed flat. Q1 avg: <strong style="color:#E1306C;">11.7%</strong></p>
+    </div>
+  </div>
+
+  <div class="expl-box" style="margin-top:1.25rem;">
+    <p class="expl-title">Why ERR and ERF tell different stories — and why that's normal</p>
+    <p class="expl-body">
+      <strong>ERR (by Reach)</strong> measures how many people who actually saw the content chose to engage with it. <strong>ERF (by Followers)</strong> measures engagement relative to the total follower base, regardless of who actually saw the post.<br><br>
+      They move independently because Instagram does not show every post to every follower. The algorithm decides how widely to distribute content based on early signals — so on any given month, reach can vary significantly even if follower count stays flat.<br><br>
+      This is why the two metrics can appear contradictory. <strong>February is the clearest example:</strong> ERR spiked to 20.6% — the highest of the quarter — while ERF dropped to its lowest at 8.7%. What happened? Reach collapsed to just 766 accounts (vs. 1,800+ in other months), but the small audience that did see the content engaged at a very high rate. From an ERR perspective it was a strong month; from an ERF perspective it looked weak because most followers simply never saw the posts.<br><br>
+      <strong>Which one to trust?</strong> ERR is the more honest signal of content quality — it tells you how compelling the content was for the people who actually saw it. ERF is more useful for long-term benchmarking and comparing against other accounts, since follower counts are public but reach data is not. Ideally both should be tracked together, as they reveal different problems: a low ERR suggests the content is not resonating, while a low ERF with a healthy ERR suggests a reach or distribution problem rather than a content quality issue.
+    </p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- IG Impressions -->
+  <div class="section">
+    <p class="section-label" style="color:#E1306C;">// Monthly impressions — Jan to Mar 2026</p>
+    <div class="chart-legend"><span><span class="legend-dot" style="background:#E1306C;"></span>Impressions</span></div>
+    <div class="chart-container" style="margin-bottom:8px;"><canvas id="igImpChart"></canvas></div>
+    <p class="chart-note">January saw the highest reach at 9,645 impressions — nearly double February and March. The drop in Feb and Mar suggests content either reached fewer non-followers or posting volume decreased. Worth monitoring alongside post frequency in Q2.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- IG Interactions + Engaged Profiles side by side -->
+  <div class="two-col">
+    <div class="section" style="margin-bottom:0;">
+      <p class="section-label" style="color:#E1306C;">// Interactions per month</p>
+      <div class="chart-legend"><span><span class="legend-dot" style="background:#E1306C;"></span>Interactions</span></div>
+      <div class="chart-container" style="margin-bottom:8px;"><canvas id="igIntChart"></canvas></div>
+      <p class="chart-note">February was the weakest month at 158 interactions. January and March held strong at 254 and 238 respectively.</p>
+    </div>
+    <div class="section" style="margin-bottom:0;">
+      <p class="section-label" style="color:#E1306C;">// Engaged profiles per month</p>
+      <div class="chart-legend"><span><span class="legend-dot" style="background:#E1306C;"></span>Engaged profiles</span></div>
+      <div class="chart-container" style="margin-bottom:8px;"><canvas id="igEngProfChart"></canvas></div>
+      <p class="chart-note">February dropped sharply to 783 engaged profiles vs. 1,630–1,659 in Dec/Jan. March recovered partially to 1,227.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- IG Q2 Recommendations -->
+  <div class="section">
+    <p class="section-label" style="color:#E1306C;">// Measurable goals &amp; recommendations for Q2 2026</p>
+
+    <div class="rec-grid" style="margin-bottom:1.5rem;">
+      <div class="rec-card" style="border-top:2px solid #E1306C;">
+        <p class="rec-num" style="color:#E1306C;">+20</p>
+        <p class="rec-title">Net new followers</p>
+        <p class="rec-body">Follower growth on Instagram is slow by nature — the account has been stable for years. A realistic Q2 target is +20 net followers, driven by shareable content and employee tagging rather than volume alone.</p>
+      </div>
+      <div class="rec-card" style="border-top:2px solid #E1306C;">
+        <p class="rec-num" style="color:#E1306C;">18%+</p>
+        <p class="rec-title">ERR target</p>
+        <p class="rec-body">Q1 averaged 16.3% ERR. A Q2 target of 18%+ is achievable — replicate the content formats and timing that drove February and March's stronger rates.</p>
+      </div>
+      <div class="rec-card" style="border-top:2px solid #E1306C;">
+        <p class="rec-num" style="color:#E1306C;">8k+</p>
+        <p class="rec-title">Monthly impressions</p>
+        <p class="rec-body">Feb and Mar fell to ~5–6k. A consistent floor of 8k per month requires shareable content and active community engagement — not just more posts.</p>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="insight-card">
+        <p class="i-label">Shareable content with the team</p>
+        <p class="i-text">The most effective growth lever is content people want to share. Behind-the-scenes team moments, project reveals, and relatable work content perform well. Always tag employees — their networks are the fastest path to new followers.</p>
+      </div>
+      <div class="insight-card">
+        <p class="i-label">Target potential employees</p>
+        <p class="i-text">Content that helps people grow in their careers — tips on product design, AI tools, working in tech — attracts the exact profiles MVST wants to hire. Think: "what would a mid-level product designer save and share?" Post that.</p>
+      </div>
+      <div class="insight-card">
+        <p class="i-label">Post memes &amp; light content</p>
+        <p class="i-text">Memes and relatable industry humour consistently drive shares and saves — especially in the product and tech space. Even one meme per week can significantly lift reach and bring in followers who wouldn't engage with polished content.</p>
+      </div>
+      <div class="insight-card">
+        <p class="i-label">Comment on relevant profiles</p>
+        <p class="i-text">Actively comment under posts from relevant accounts in the product, AI, and tech field. Thoughtful comments on high-traffic posts put MVST in front of new audiences without requiring any new content — one of the most underused growth tactics.</p>
+      </div>
+      <div class="insight-card">
+        <p class="i-label">Stories — show day-to-day life at MVST</p>
+        <p class="i-text">Post Stories at least twice per week showing the real side of working at MVST — afterworks, team lunches, daily work impressions, office moments. Stories build familiarity and trust, and are especially effective for attracting potential employees who want to see the culture before applying.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+Chart.defaults.font.family = "'Space Grotesk', sans-serif";
+Chart.defaults.color = '#555555';
+
+const NEON = '#00FF44';
+const NEON_FADE = 'rgba(0,255,68,0.07)';
+const GRID = 'rgba(255,255,255,0.05)';
+const TT = { backgroundColor: '#1a1a1a', borderColor: '#2a2a2a', borderWidth: 1, titleColor: '#00FF44', bodyColor: '#aaa' };
+
+new Chart(document.getElementById('engChart'), {
+  type: 'line',
+  data: {
+    labels: ['Jun 25','Jul 25','Aug 25','Sep 25','Oct 25','Nov 25','Dec 25*','Jan 26','Feb 26','Mar 26'],
+    datasets: [{
+      data: [15.8,25.4,26.1,23.4,16.1,16.5,30,19.4,16.1,25.1],
+      borderColor: NEON, backgroundColor: NEON_FADE,
+      pointRadius: [4,4,4,4,4,4,5,4,4,4],
+      pointBackgroundColor: [NEON,NEON,NEON,NEON,NEON,NEON,'#444',NEON,NEON,NEON],
+      pointBorderColor:     [NEON,NEON,NEON,NEON,NEON,NEON,'#444',NEON,NEON,NEON],
+      fill: true, tension: 0.45, borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { ...TT, callbacks: { label: ctx => ctx.dataIndex===6 ? 'Actual: 45.8 — offsite recap / team tagged (capped)' : 'Engagement rate: '+ctx.parsed.y+'%' } } },
+    scales: {
+      x: { ticks: { autoSkip: false, maxRotation: 35, font: { size: 11 }, color: '#555' }, grid: { display: false }, border: { display: false } },
+      y: { min: 0, max: 40, ticks: { stepSize: 10, color: '#555', callback: v => v+'%' }, grid: { color: GRID }, border: { display: false } }
+    }
+  }
+});
+
+new Chart(document.getElementById('follChart'), {
+  type: 'line',
+  data: {
+    labels: ['Nov 25','Dec 25','Jan 26','Feb 26','Mar 26'],
+    datasets: [{
+      data: [167,33,102,69,78],
+      borderColor: NEON, backgroundColor: NEON_FADE,
+      pointRadius: [4,5,4,4,4],
+      pointBackgroundColor: [NEON,'#444',NEON,NEON,NEON],
+      pointBorderColor:     [NEON,'#444',NEON,NEON,NEON],
+      fill: true, tension: 0.4, borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { ...TT, callbacks: { label: ctx => 'New followers: '+ctx.parsed.y } } },
+    scales: {
+      x: { ticks: { autoSkip: false, font: { size: 11 }, color: '#555' }, grid: { display: false }, border: { display: false } },
+      y: { min: 0, ticks: { stepSize: 50, color: '#555' }, grid: { color: GRID }, border: { display: false } }
+    }
+  }
+});
+
+new Chart(document.getElementById('commChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Nov 25','Dec 25','Jan 26','Feb 26','Mar 26'],
+    datasets: [{ data: [6,3,8,15,17], backgroundColor: [NEON,'#333',NEON,NEON,NEON], borderRadius: 4, barPercentage: 0.5 }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: TT },
+    scales: {
+      x: { ticks: { autoSkip: false, font: { size: 11 }, color: '#555' }, grid: { display: false }, border: { display: false } },
+      y: { min: 0, max: 22, ticks: { stepSize: 5, color: '#555' }, grid: { color: GRID }, border: { display: false } }
+    }
+  }
+});
+
+new Chart(document.getElementById('impChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Nov 25','Dec 25','Jan 26','Feb 26','Mar 26'],
+    datasets: [
+      { data: [12993,12793,12710,15954,13814], backgroundColor: NEON, borderRadius: 4, barPercentage: 0.55, yAxisID: 'y' },
+      { data: [10,11,12,11,12], type: 'line', borderColor: '#444', backgroundColor: '#444', pointRadius: 4, pointBackgroundColor: '#444', borderDash: [4,3], borderWidth: 1.5, yAxisID: 'y2' }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: TT },
+    scales: {
+      x: { ticks: { autoSkip: false, font: { size: 11 }, color: '#555' }, grid: { display: false }, border: { display: false } },
+      y: { ticks: { color: '#555', callback: v => (v/1000).toFixed(0)+'k' }, grid: { color: GRID }, border: { display: false } },
+      y2: { position: 'right', min: 0, max: 20, ticks: { stepSize: 5, color: '#555' }, grid: { display: false }, border: { display: false }, title: { display: true, text: 'Posts', font: { size: 11 }, color: '#555' } }
+    }
+  }
+});
+
+
+
+// Instagram charts
+new Chart(document.getElementById('igErrChart'), {
+  type: 'line',
+  data: {
+    labels: ['Dec 25','Jan 26','Feb 26','Mar 26'],
+    datasets: [{
+      data: [11.4,13.9,20.6,19.4],
+      borderColor: '#E1306C', backgroundColor: 'rgba(225,48,108,0.07)',
+      pointRadius: 4, pointBackgroundColor: '#E1306C', pointBorderColor: '#E1306C',
+      fill: true, tension: 0.45, borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { ...TT, callbacks: { label: ctx => 'ERR: '+ctx.parsed.y+'%' } } },
+    scales: {
+      x: { ticks: { autoSkip: false, font: { size: 11 }, color: '#555' }, grid: { display: false }, border: { display: false } },
+      y: { min: 0, max: 25, ticks: { stepSize: 5, color: '#555', callback: v => v+'%' }, grid: { color: GRID }, border: { display: false } }
+    }
+  }
+});
+
+new Chart(document.getElementById('igErfChart'), {
+  type: 'line',
+  data: {
+    labels: ['Dec 25','Jan 26','Feb 26','Mar 26'],
+    datasets: [{
+      data: [11.3,13.9,8.7,13.0],
+      borderColor: '#c0392b', backgroundColor: 'rgba(192,57,43,0.07)',
+      pointRadius: 4, pointBackgroundColor: '#c0392b', pointBorderColor: '#c0392b',
+      fill: true, tension: 0.45, borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { ...TT, callbacks: { label: ctx => 'ERF: '+ctx.parsed.y+'%' } } },
+    scales: {
+      x: { ticks: { autoSkip: false, font: { size: 11 }, color: '#555' }, grid: { display: false }, border: { display: false } },
+      y: { min: 0, max: 20, ticks: { stepSize: 5, color: '#555', callback: v => v+'%' }, grid: { color: GRID }, border: { display: false } }
+    }
+  }
+});
+
+new Chart(document.getElementById('igImpChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Jan 26','Feb 26','Mar 26'],
+    datasets: [{ data: [9645,5476,5904], backgroundColor: '#E1306C', borderRadius: 4, barPercentage: 0.5 }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: TT },
+    scales: {
+      x: { ticks: { autoSkip: false, font: { size: 11 }, color: '#555' }, grid: { display: false }, border: { display: false } },
+      y: { min: 0, ticks: { color: '#555', callback: v => (v/1000).toFixed(1)+'k' }, grid: { color: GRID }, border: { display: false } }
+    }
+  }
+});
+
+new Chart(document.getElementById('igIntChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Dec 25','Jan 26','Feb 26','Mar 26'],
+    datasets: [{ data: [206,254,158,238], backgroundColor: ['#E1306C','#E1306C','#555','#E1306C'], borderRadius: 4, barPercentage: 0.5 }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: TT },
+    scales: {
+      x: { ticks: { autoSkip: false, font: { size: 11 }, color: '#555' }, grid: { display: false }, border: { display: false } },
+      y: { min: 0, max: 300, ticks: { stepSize: 50, color: '#555' }, grid: { color: GRID }, border: { display: false } }
+    }
+  }
+});
+
+new Chart(document.getElementById('igEngProfChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Dec 25','Jan 26','Feb 26','Mar 26'],
+    datasets: [{ data: [1630,1659,783,1227], backgroundColor: ['#E1306C','#E1306C','#555','#E1306C'], borderRadius: 4, barPercentage: 0.5 }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: TT },
+    scales: {
+      x: { ticks: { autoSkip: false, font: { size: 11 }, color: '#555' }, grid: { display: false }, border: { display: false } },
+      y: { min: 0, ticks: { stepSize: 500, color: '#555' }, grid: { color: GRID }, border: { display: false } }
+    }
+  }
+});
+
+</script>
+</body>
+</html>
